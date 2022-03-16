@@ -1,22 +1,16 @@
-#main
-
 import math
 import collections
 from sys import maxsize
 from collections import deque
+from collections import defaultdict
 
-print("------------------------------")
-# ** handle graph
-
-# add edge in graph
-
+# agregamos lado
 
 def add_edge(adj, src, dest, weight):
     adj[src][dest] = weight
     adj[dest][src] = weight
 
-# delete node in graph
-
+# Eliminar nodo para cuando no tenga visa
 
 def delete_node(adj, vertex):
     for neighbor in list(adj[vertex]):
@@ -24,40 +18,39 @@ def delete_node(adj, vertex):
             adj[neighbor].pop(vertex)
     del adj[vertex]
 
-# ** shortest paths finder (all)
-
+# Metodo de camino corto
 
 def find_paths(paths, path, parents, vertices, dest, all_cities):
 
-    # base case of the recursive function
+    # Inicio de la funcion recursiva
     if (dest == -1):
         paths.append(path.copy())
         return
 
-    # loop the parents of the node
+    # Ir eliminando todos los nodos padres hasta llegar al destino
     for parent in parents[dest]:
 
-        # we insert the node in the current path
+        # Agregamos el nodo destino
         path.append(dest)
 
-        # recursive function
+        # recursividad
         find_paths(paths, path, parents, vertices, parent, all_cities)
 
-        # Remove the current node
+        # sacar nodo
         path.pop()
 
 
 def bfs(adj, parent, vertices, source, all_cities):
-    # dist is the shortest distance from the source
+    # Busqueda por anchura
     dist = [maxsize for _ in range(vertices)]
     queue = deque()
 
-    # we insert the source in the queue, now the parent is -1 and the distance is 0 since its itself
+    # Insertamos el destino en la cola, asi de tal forma que el padre esta en -1 consiguiendo una distancia de 0 consigo mismo
     queue.append(source)
     parent[source] = [-1]
     dist[source] = 0
 
-    # until queue is empty
+    # No nos detenemos hasta que no haya mas cola
     while queue:
 
         u = queue[0]
@@ -67,27 +60,27 @@ def bfs(adj, parent, vertices, source, all_cities):
 
             if (dist[v] > dist[u] + 1):
 
-                # shorter distance, erase all the previous parents
+                # para cortar distancia borramos padres 
                 dist[v] = dist[u] + 1
                 queue.append(v)
                 parent[v].clear()
                 parent[v].append(u)
 
             elif (dist[v] == dist[u] + 1):
-                # candidate parent for shortest path found
+                # Sacamos el candidato a 
                 parent[v].append(u)
 
 
 def print_paths(old_adj, vertices, start, dest, all_cities):
 
-    # transform the adj list in an unweighted adj list with numbers as the city's name for commodity
+    # Pasamos los nombres de las ciudades a una lista vacia para poder recorrerlas 
     adj = []
     for key, value in old_adj.items():
         node_list = []
         for neighbor in value:
             node_list.append(all_cities.index(neighbor))
         adj.append(node_list)
-    # initial values
+    # valores iniciales 
     paths = []
     path = []
     parent = [[] for i in range(vertices)]
@@ -95,15 +88,14 @@ def print_paths(old_adj, vertices, start, dest, all_cities):
     bfs(adj, parent, vertices, start, all_cities)
     find_paths(paths, path, parent, vertices, dest, all_cities)
 
-    # now we print the paths
+    # La ruta mas corta
     print("La(s) ruta(s) con menos segmentos es(son): ")
     for path in paths:
 
-        # we have to reverse it to have the right order since we constructed this from the destination
+        # Revertimos el orden la la lista ya que tomamos todo desde el destino
         path = reversed(path)
-        camino = list(path)
 
-        # print nodes
+        # los nodos
         print("[", end=" ")
         for node in path:
             print(all_cities[node], end=", ")
@@ -111,62 +103,102 @@ def print_paths(old_adj, vertices, start, dest, all_cities):
 
 
 # ** cheapest path
-def dijkstra(graph, source, target):
-
-    unvisited_nodes = graph
-    shortest_distance = {}
-    path = []
-    predecessor = {}
-
-    # Iterating through all the unvisited nodes
-    for nodes in unvisited_nodes:
-        shortest_distance[nodes] = math.inf
-
+# def dijkstra(graph, source, target):
+#
+#    unvisited_nodes = graph
+#    shortest_distance = {}
+#    path = []
+#    predecessor = {}
+#
+#    # Iterating through all the unvisited nodes
+#    for nodes in unvisited_nodes:
+#        shortest_distance[nodes] = math.inf
+#
     # The distance of a point to itself is 0.
-    shortest_distance[source] = 0
+#    shortest_distance[source] = 0
+#
+#   while(unvisited_nodes):
+#
+#       # setting the value of min_node as None
+#        min_node = None
+#
+#        for current_node in unvisited_nodes:
+#
+#            if min_node is None:
+#                min_node = current_node
+#            elif shortest_distance[min_node] > shortest_distance[current_node]:
+#                min_node = current_node
+#
+#        for child_node, value in unvisited_nodes[min_node].items():
+#
+#            if value + shortest_distance[min_node] < shortest_distance[child_node]:
+#
+#                shortest_distance[child_node] = value + \
+#                    shortest_distance[min_node]
+#                predecessor[child_node] = min_node
+#
+#        unvisited_nodes.pop(min_node)
+#
+#    node = target
+#
+#    while node != source:
+#
+#        try:
+#            path.insert(0, node)
+#            node = predecessor[node]
+#        except Exception:
+#            print('No hay forma de llegar')
+#            break
+#
+#    path.insert(0, source)
+#
+#    if shortest_distance[target] != math.inf:
+#
+#        print('La ruta mas barata tiene un costo de ' +
+#              str(shortest_distance[target]) + ', y el camino es ' + str(path))
 
-    while(unvisited_nodes):
+class NodeDistance :
 
-        # setting the value of min_node as None
-        min_node = None
+    def init(self, name, dist) :
+        self.name = name
+        self.dist = dist
 
-        for current_node in unvisited_nodes:
+class Graph :
 
-            if min_node is None:
-                min_node = current_node
-            elif shortest_distance[min_node] > shortest_distance[current_node]:
-                min_node = current_node
+    def init(self, node_count):
+        self.adjlist = defaultdict(list)
+        self.node_count = node_count
 
-        for child_node, value in unvisited_nodes[min_node].items():
+    def add_into_adjlist(self, src, node_dist):
+        self.adjlist[src].append(node_dist)
 
-            if value + shortest_distance[min_node] < shortest_distance[child_node]:
+    def dijkstras_shortest_path(self, source):
+        # Inicializar la distancia de todos los nodos (al origen) en infinito
+        distance = [999999999999] * self.node_count
+        # La distacia del origen a el mismo es 0
+        distance[source] = 0
 
-                shortest_distance[child_node] = value + \
-                    shortest_distance[min_node]
-                predecessor[child_node] = min_node
+        # Crear un dictionario de la forma { node: distancia_desde_origen }
+        dict_node_length = {source: 0}
 
-        unvisited_nodes.pop(min_node)
+        while dict_node_length:
+            # Obtener la clave con el menor valor en el diccionario
+            current_source_node = min(dict_node_length, key = lambda k: dict_node_length[k])
+            del dict_node_length[current_source_node]
 
-    node = target
+            for node_dist in self.adjlist[current_source_node]:
+                adjnode = node_dist.name
+                length_to_adjnode = node_dist.dist
 
-    while node != source:
+                # Edge relaxation (Operacion triple de floyd)
+                if distance[adjnode] > distance[current_source_node] + length_to_adjnode :
+                    distance[adjnode] = distance[current_source_node] + length_to_adjnode
+                    dict_node_length[adjnode] = distance[adjnode]
 
-        try:
-            path.insert(0, node)
-            node = predecessor[node]
-        except Exception:
-            print('No hay forma de llegar')
-            break
-
-    path.insert(0, source)
-
-    if shortest_distance[target] != math.inf:
-
-        print('La ruta mas barata tiene un costo de ' +
-              str(shortest_distance[target]) + ', y el camino es ' + str(path))
+        for i in range(self.node_count):
+            print("Source Node ("+str(source)+")  -> Destination Node(" + str(i) + ")  : " + str(distance[i]))
 
 # main
-
 
 # variables
 all_cities = ["CCS", "AUA", "BON", "CUR", "SXM",
