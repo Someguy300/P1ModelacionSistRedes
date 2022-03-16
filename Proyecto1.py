@@ -69,7 +69,7 @@ def print_paths(old_adj, vertices, start, dest, all_cities):
 
     # Pasamos los nombres de las ciudades a una lista vacia para poder recorrerlas 
     adj = []
-    for value in old_adj.graph.items():
+    for key, value in old_adj.graph.items():
         node_list = []
         for neighbor in value:
             node_list.append(all_cities.index(neighbor))
@@ -214,16 +214,16 @@ init_graph["AUA"]["CUR"]=15
 init_graph["AUA"]["BON"]=15
 init_graph["CUR"]["BON"]=15
 init_graph["SDQ"]["SXM"]=50
-init_graph["SXM"]["SBH"] =45
+init_graph["SXM"]["SBH"]=45
 init_graph["POS"]["BGI"]=35
-init_graph["POS"]["SXM"] =90
-init_graph["POS"]["PTP"] =80
-init_graph["POS"]["FDF"] =75
-init_graph["BGI"]["SXM"]= 70
-init_graph["PTP"]["SXM"]= 100
-init_graph["PTP"]["SBH"]= 80
-init_graph["CUR"]["SXM"]= 80
-init_graph["AUA"]["SXM"]= 85
+init_graph["POS"]["SXM"]=90
+init_graph["POS"]["PTP"]=80
+init_graph["POS"]["FDF"]=75
+init_graph["BGI"]["SXM"]=70
+init_graph["PTP"]["SXM"]=100
+init_graph["PTP"]["SBH"]=80
+init_graph["CUR"]["SXM"]=80
+init_graph["AUA"]["SXM"]=85
 graph = Graph(all_cities, init_graph)
 
 # we ask if the person has a visa
