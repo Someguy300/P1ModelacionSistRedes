@@ -157,46 +157,112 @@ def print_paths(old_adj, vertices, start, dest, all_cities):
 #        print('La ruta mas barata tiene un costo de ' +
 #              str(shortest_distance[target]) + ', y el camino es ' + str(path))
 
-class NodeDistance :
 
-    def init(self, name, dist) :
-        self.name = name
-        self.dist = dist
+#Class to represent a graph
+class Graph:
 
-class Graph :
+    # A utility function to find the
+    # vertex with minimum dist value, from
+    # the set of vertices still in queue
+    def minDistance(self, dist, queue):
+        # Initialize min value and min_index as -1
+        minimum = float("Inf")
+        min_index = -1
 
-    def init(self, node_count):
-        self.adjlist = defaultdict(list)
-        self.node_count = node_count
+        # from the dist array,pick one which
+        # has min value and is till in queue
+        for i in range(len(dist)):
+            if dist[i] < minimum and i in queue:
+                minimum = dist[i]
+                min_index = i
+        return min_index
 
-    def add_into_adjlist(self, src, node_dist):
-        self.adjlist[src].append(node_dist)
+    # Function to print shortest path
+    # from source to j
+    # using parent array
 
-    def dijkstras_shortest_path(self, source):
-        # Inicializar la distancia de todos los nodos (al origen) en infinito
-        distance = [999999999999] * self.node_count
-        # La distacia del origen a el mismo es 0
-        distance[source] = 0
+    def printPath(self, parent, j):
 
-        # Crear un dictionario de la forma { node: distancia_desde_origen }
-        dict_node_length = {source: 0}
+        #Base Case : If j is source
+        if parent[j] == -1:
+            print(j, end=" ")
+            return
+        self.printPath(parent, parent[j])
+        print(j, end=" ")
 
-        while dict_node_length:
-            # Obtener la clave con el menor valor en el diccionario
-            current_source_node = min(dict_node_length, key = lambda k: dict_node_length[k])
-            del dict_node_length[current_source_node]
+    # A utility function to print
+    # the constructed distance
+    # array
 
-            for node_dist in self.adjlist[current_source_node]:
-                adjnode = node_dist.name
-                length_to_adjnode = node_dist.dist
+    def printSolution(self, dist, parent):
+        src = 0
+        print("Vertex \t\tDistance from Source\tPath")
+        for i in range(1, len(dist)):
+            print("\n%d --> %d \t\t%d \t\t\t\t\t" % (src, i, dist[i]), end=" ")
+            self.printPath(parent, i)
 
-                # Edge relaxation (Operacion triple de floyd)
-                if distance[adjnode] > distance[current_source_node] + length_to_adjnode :
-                    distance[adjnode] = distance[current_source_node] + length_to_adjnode
-                    dict_node_length[adjnode] = distance[adjnode]
 
-        for i in range(self.node_count):
-            print("Source Node ("+str(source)+")  -> Destination Node(" + str(i) + ")  : " + str(distance[i]))
+  # def dijkstra(graph, source, target):
+    def dijkstra(self, graph, src):
+
+        row = len(graph)
+        col = len(graph[0])
+
+        # The output array. dist[i] will hold
+        # the shortest distance from src to i
+        # Initialize all distances as INFINITE
+        dist = [float("Inf")] * row
+
+        #Parent array to store
+        # shortest path tree
+        parent = [-1] * row
+
+        # Distance of source vertex
+        # from itself is always 0
+        dist[src] = 0
+
+        # Add all vertices in queue
+        queue = []
+        for i in range(row):
+            queue.append(i)
+
+        #Find shortest path for all vertices
+        while queue:
+
+            # Pick the minimum dist vertex
+            # from the set of vertices
+            # still in queue
+            u = self.minDistance(dist, queue)
+
+            # remove min element
+            queue.remove(u)
+
+            # Update dist value and parent
+            # index of the adjacent vertices of
+            # the picked vertex. Consider only
+            # those vertices which are still in
+            # queue
+            for i in range(col):
+                '''Update dist[i] only if it is in queue, there is
+                an edge from u to i, and total weight of path from
+                src to i through u is smaller than current value of
+                dist[i]'''
+                if graph[u][i] and i in queue:
+                    if dist[u] + graph[u][i] < dist[i]:
+                        dist[i] = dist[u] + graph[u][i]
+                        parent[i] = u
+
+        # print the constructed distance array
+        self.printSolution(dist, parent)
+
+
+g = Graph()
+
+
+
+# Print the solution
+#g.dijkstra(graph, 0)
+
 
 # main
 
@@ -324,7 +390,7 @@ while True:
 if has_visa == 2 and dest in need_visa_cities:
     print("No posee la visa requerida para entrar")
 elif route_type == 1:
-    dijkstra(adj, src, dest)
+    dijkstra(adj, src)
 else:
     print_paths(adj, vertices, all_cities.index(
         src), all_cities.index(dest), all_cities)
