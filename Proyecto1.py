@@ -312,7 +312,7 @@ while True:
 # if he doesn't have a visa, delete the cities that need visa from the graph
 if has_visa == 2:
     for city_visa in need_visa_cities:
-        delete_node(graph, city_visa)
+        delete_node(init_graph, city_visa)
         all_cities.remove(city_visa)
 
 # first, we ask the origin and destiny
