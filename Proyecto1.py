@@ -66,7 +66,6 @@ def bfs(adj, parent, vertices, source, all_cities):
 
 
 def print_paths(old_adj, vertices, start, dest, all_cities):
-
     # Pasamos los nombres de las ciudades a una lista vacia para poder recorrerlas 
     adj = []
     for key, value in old_adj.graph.items():
@@ -308,7 +307,6 @@ while True:
         if (route_type == 1 or route_type == 2):
             break
         else:
-
             print("Seleccione el tipo de ruta que desea")
             print("[1] Ruta mas barata")
             print("[2] Ruta con menos segmentos")
@@ -320,8 +318,7 @@ elif route_type == 1:
     previous_nodes, shortest_path = dijkstra_algorithm(graph=graph, start_node=src)
     print_result(previous_nodes, shortest_path, start_node=src, target_node=dest)
 else:
-    print_paths(graph, vertices, all_cities.index(
-        src), all_cities.index(dest), all_cities)
+    print_paths(init_graph, vertices, all_cities.index(src), all_cities.index(dest), all_cities)
 
 
 
