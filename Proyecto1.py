@@ -4,6 +4,7 @@ import collections
 from sys import maxsize
 from collections import deque
 from collections import defaultdict
+from typing import final
 
 # Eliminar nodo para cuando no tenga visa
 def delete_node(adj, vertex):
@@ -77,22 +78,27 @@ def print_paths(old_adj, vertices, start, dest, all_cities):
     paths = []
     path = []
     parent = [[] for i in range(vertices)]
-
     bfs(adj, parent, vertices, start, all_cities)
     find_paths(paths, path, parent, vertices, dest, all_cities)
 
     # La ruta mas corta
-    print("La(s) ruta(s) con menos segmentos es(son): ")
+    print("La ruta con menos segmentos es: ")
+    weight = 0
+    i=0
     for path in paths:
-
         # Revertimos el orden la la lista ya que tomamos todo desde el destino
         path = reversed(path)
-
+        path = list(path)
         # los nodos
-        print("[", end=" ")
         for node in path:
-            print(all_cities[node], end=", ")
-        print("]")
+            i = i+1
+            print(all_cities[node], end=" -> ")
+            try:
+                weight = weight + old_adj[all_cities[node]][all_cities[path[i]]]
+            except Exception:
+                pass
+    print("Y tiene un costo de: " + str(weight))
+
 
 class Graph(object):
     def __init__(self, nodes, init_graph):
@@ -144,7 +150,8 @@ def print_result(previous_nodes, shortest_path, start_node, target_node):
     # Add the start node manually
     path.append(start_node)
     
-    print("We found the following best path with a value of {}.".format(shortest_path[target_node]))
+    print("La ruta mas barata tiene un costo de {}.".format(shortest_path[target_node]))
+    print("Y la ruta es: ")
     print(" -> ".join(reversed(path)))
 
 def dijkstra_algorithm(graph, start_node):
@@ -191,135 +198,187 @@ def dijkstra_algorithm(graph, start_node):
 
 # main
 
-# variables
-all_cities = ["CCS", "AUA", "BON", "CUR", "SXM",
-              "SDQ", "SBH", "POS", "BGI", "FDF", "PTP"]
-need_visa_cities = ["AUA", "BON", "CUR", "SXM", "SDQ"]
-vertices = len(all_cities)
-index = 0
-
-
-init_graph = {}
-for node in all_cities:
-    init_graph[node] = {}
-# we create the graph
-init_graph["CCS"]["AUA"]=40
-init_graph["CCS"]["CUR"]=35
-init_graph["CCS"]["BON"]=60
-init_graph["CCS"]["SDQ"]=180
-init_graph["CCS"]["POS"]=150
-init_graph["CCS"]["BGI"]=180
-init_graph["AUA"]["CUR"]=15
-init_graph["AUA"]["BON"]=15
-init_graph["CUR"]["BON"]=15
-init_graph["SDQ"]["SXM"]=50
-init_graph["SXM"]["SBH"]=45
-init_graph["POS"]["BGI"]=35
-init_graph["POS"]["SXM"]=90
-init_graph["POS"]["PTP"]=80
-init_graph["POS"]["FDF"]=75
-init_graph["BGI"]["SXM"]=70
-init_graph["PTP"]["SXM"]=100
-init_graph["PTP"]["SBH"]=80
-init_graph["CUR"]["SXM"]=80
-init_graph["AUA"]["SXM"]=85
-graph = Graph(all_cities, init_graph)
-
-# we ask if the person has a visa
-print("Bienvenido a la Agencias de Viajes Metro Travel.")
-print("¿Usted posee visa para viajar?")
-print("[1] Sí")
-print("[2] No")
-
-# we have to validate the user input
 while True:
-    try:
-        has_visa = int(input())
-    except ValueError:
-        print("¿Usted posee visa para viajar?")
-        print("[1] Sí")
-        print("[2] No")
-        continue
-    else:
-        # we validate if the selected option is available
-        if (has_visa == 1 or has_visa == 2):
-            break
-        else:
+    # variables
+    all_cities = ["CCS", "AUA", "BON", "CUR", "SXM",
+                "SDQ", "SBH", "POS", "BGI", "FDF", "PTP"]
+    need_visa_cities = ["AUA", "BON", "CUR", "SXM", "SDQ"]
+    vertices = len(all_cities)
+    index = 0
+    repeatProgram = 0
+
+    init_graph = {}
+    for node in all_cities:
+        init_graph[node] = {}
+    # we create the graph
+    init_graph["CCS"]["AUA"]=40
+    init_graph["CCS"]["CUR"]=35
+    init_graph["CCS"]["BON"]=60
+    init_graph["CCS"]["SDQ"]=180
+    init_graph["CCS"]["POS"]=150
+    init_graph["CCS"]["BGI"]=180
+    init_graph["AUA"]["CUR"]=15
+    init_graph["AUA"]["BON"]=15
+    init_graph["CUR"]["BON"]=15
+    init_graph["SDQ"]["SXM"]=50
+    init_graph["SXM"]["SBH"]=45
+    init_graph["POS"]["BGI"]=35
+    init_graph["POS"]["SXM"]=90
+    init_graph["POS"]["PTP"]=80
+    init_graph["POS"]["FDF"]=75
+    init_graph["BGI"]["SXM"]=70
+    init_graph["PTP"]["SXM"]=100
+    init_graph["PTP"]["SBH"]=80
+    init_graph["CUR"]["SXM"]=80
+    init_graph["AUA"]["SXM"]=85
+    graph = Graph(all_cities, init_graph)
+
+    # we ask if the person has a visa
+    print("--------------------------------------------------------------")
+    print()
+    print("Bienvenido a la Agencias de Viajes Metro Travel.")
+
+
+    # we have to validate the user input
+    while True:
+        try:
             print("¿Usted posee visa para viajar?")
-            print("[1] Sí")
-            print("[2] No")
+            print("Presione [1] y Enter para Sí")
+            print("Presione [2] y Enter para No")
+            has_visa = int(input())
+        except Exception:
+            print()
+            print("Valor incorrecto, presione las teclas indicadas")
+            print()
             continue
-
-# if he doesn't have a visa, delete the cities that need visa from the graph
-if has_visa == 2:
-    for city_visa in need_visa_cities:
-        delete_node(init_graph, city_visa)
-        all_cities.remove(city_visa)
-
-# first, we ask the origin and destiny
-while True:
-    print("Los aeropuertos disponibles son:")
-    for city in all_cities:
-        print(city, end=', ')
-    print("Ingrese el codigo del aeropuerto de origen para su viaje:")
-    src = input().upper()
-    if src.strip() == '':
-        print("Debe ingresar un nombre")
-        continue
-    elif src not in all_cities:
-        print("Ingrese un codigo valido")
-        continue
-    else:
-        break
-
-while True:
-    print("Los aeropuertos disponibles son:")
-    for city in all_cities:
-        print(city, end=', ')
-    print("Ingrese el codigo del aeropuerto de destino para su viaje:")
-    dest = input().upper()
-    if dest.strip() == '':
-        print("Debe ingresar un nombre")
-        continue
-    elif dest not in all_cities:
-        print("Ingrese un codigo valido")
-        continue
-    else:
-        break
-
-
-# now, we ask which type of route he wants
-print("Seleccione el tipo de ruta que desea")
-print("[1] Ruta mas barata")
-print("[2] Ruta con menos segmentos")
-
-while True:
-    try:
-        route_type = int(input())
-    except ValueError:
-
-        print("Seleccione el tipo de ruta que desea")
-        print("[1] Ruta mas barata")
-        print("[2] Ruta con menos segmentos")
-        continue
-    else:
-        # we validate if the selected option is available
-        if (route_type == 1 or route_type == 2):
-            break
         else:
-            print("Seleccione el tipo de ruta que desea")
-            print("[1] Ruta mas barata")
-            print("[2] Ruta con menos segmentos")
+            # we validate if the selected option is available
+            if (has_visa == 1 or has_visa == 2):
+                break
+            else:
+                print()
+                print("Valor incorrecto, presione las teclas indicadas")
+                print()
+                continue
+
+    print("--------------------------------------------------------------")
+    print()
+
+    # if he doesn't have a visa, delete the cities that need visa from the graph
+    if has_visa == 2:
+        for city_visa in need_visa_cities:
+            delete_node(init_graph, city_visa)
+            all_cities.remove(city_visa)
+
+    # first, we ask the origin and destiny
+    while True:
+        print("De acuerdo a su disponibilidad de visa los aeropuertos para iniciar su viaje disponibles son:")
+        for city in all_cities:
+            print(city, end=', ')
+        print()
+        print("Ingrese el codigo del aeropuerto de origen para su viaje:")
+        src = input().upper()
+        if src.strip() == '':
+            print()
+            print("Valor incorrecto, debe ingresar un nombre valido de la lista")
+            print()
             continue
+        elif src not in all_cities:
+            print()
+            print("Ingrese un codigo valido")
+            print()
+            continue
+        else:
+            break
 
-if has_visa == 2 and dest in need_visa_cities:
-    print("No posee la visa requerida para entrar")
-elif route_type == 1:
-    previous_nodes, shortest_path = dijkstra_algorithm(graph=graph, start_node=src)
-    print_result(previous_nodes, shortest_path, start_node=src, target_node=dest)
-else:
-    print_paths(init_graph, vertices, all_cities.index(src), all_cities.index(dest), all_cities)
+    print("--------------------------------------------------------------")
+    print()
 
+    while True:
+        print("Los aeropuertos destino disponibles son:")
+        for city in all_cities:
+            print(city, end=', ')
+        print()
+        print("Ingrese el codigo del aeropuerto de destino para su viaje:")
+        dest = input().upper()
+        if dest.strip() == '':
+            print()
+            print("Debe ingresar un nombre valido de la lista")
+            print()
+            continue
+        elif dest not in all_cities:
+            print()
+            print("Ingrese un codigo valido")
+            print()
+            continue
+        else:
+            break
+
+    print("--------------------------------------------------------------")
+    print()
+    # now, we ask which type of route he wants
+    while True:
+        try:
+            print("Seleccione el tipo de ruta que desea")
+            print("Presione [1] y [Enter] Ruta mas barata")
+            print("Presione [2] y [Enter] Ruta con menos segmentos")
+            route_type = int(input())
+        except Exception:
+            print()
+            print("Valor incorrecto, presione las teclas indicadas")
+            print()
+            continue
+        else:
+            # we validate if the selected option is available
+            if (route_type == 1 or route_type == 2):
+                break
+            else:
+                print()
+                print("Valor incorrecto, presione las teclas indicadas")
+                print()
+                continue
+
+    if has_visa == 2 and dest in need_visa_cities:
+        print("No posee la visa requerida para entrar")
+    elif route_type == 1:
+        previous_nodes, shortest_path = dijkstra_algorithm(graph=graph, start_node=src)
+        print_result(previous_nodes, shortest_path, start_node=src, target_node=dest)
+    else:
+        print_paths(init_graph, vertices, all_cities.index(src), all_cities.index(dest), all_cities)
+    print()
+    print("Presione [Enter] para continuar")
+    input()
+
+    print("--------------------------------------------------------------")
+    print()
+    
+    # we have to validate the user input
+    while True:
+        try:
+            print("¿Desea correr de nuevo el programa?")
+            print("Presione [1] y Enter para Sí")
+            print("Presione [2] y Enter para No")
+            repeatProgram = int(input())
+        except Exception:
+            print()
+            print("Valor incorrecto, presione las teclas indicadas")
+            continue
+        else:
+            # we validate if the selected option is available
+            if (repeatProgram == 1 or repeatProgram == 2):
+                break
+            else:
+                print()
+                print("Valor incorrecto, presione las teclas indicadas")
+                continue
+
+    if (repeatProgram == 1):
+        continue
+    elif repeatProgram == 2:
+        print()
+        print("Gracias por usar el programa de la Agencias de Viajes Metro Travel")
+        break
+    
 
 
 
