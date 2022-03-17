@@ -68,7 +68,7 @@ def bfs(adj, parent, vertices, source, all_cities):
 def print_paths(old_adj, vertices, start, dest, all_cities):
     # Pasamos los nombres de las ciudades a una lista vacia para poder recorrerlas 
     adj = []
-    for key, value in old_adj.graph.items():
+    for key, value in old_adj.items():
         node_list = []
         for neighbor in value:
             node_list.append(all_cities.index(neighbor))
